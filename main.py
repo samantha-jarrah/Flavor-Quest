@@ -1,20 +1,23 @@
 import click
+click.clear()
 
 @click.command()
 def start():
     greeting()
     cuisine_types = get_cuisine_types()
-    click.echo(f"cuisine_types={cuisine_types}")
+    # click.echo(f"cuisine_types={cuisine_types}")
     diet_types = get_diet_types()
-    click.echo(f"diet_types={diet_types}")
+    # click.echo(f"diet_types={diet_types}")
     
 
 def greeting():
     """Greets the user and explains the purpose of Flavor Quest."""
-
-    click.echo("Welcome to Flavor Quest!\n")
-    click.echo("After answering just a few, quick, questions about your food intolerances, cuisine preferences, and more, we will show you a tasty recipe try. If at any point you want to skip a question, enter 0, or if you’d like to see more details about the question, enter 1. Lastly, if you want to go back and change your response, enter 'Back'.\n")
-    # get_cuisine_types()
+    greeting = click.style("Welcome to Flavor Quest!", fg="green", bg="white", bold=True)
+    click.echo(greeting)
+    click.echo("\n")
+    instructions = click.style("After answering just a few, quick, questions about your food intolerances, cuisine preferences, and more, we will show you a tasty recipe to try. If at any point you want to skip a question, enter 0, or if you’d like to see more details about the question, enter 1. Lastly, if you want to go back and change your response, enter 'Back'.", italic=True)
+    click.echo(instructions)
+    click.echo("\n")
 
 def get_cuisine_types():
     """Asks the user what cuisine types they are interested in. Can be skipped or user can see cuisine options."""
@@ -24,8 +27,11 @@ def get_cuisine_types():
 
     while True:
         click.echo("What cuisine types are you interested in? (separate by commas)")
-        click.echo("Enter 0 to skip this step or 1 to see cuisine options.")
-        cuisine_input = click.prompt("Cuisine Types", type=str)
+        options = click.style("Enter 0 to skip this step or 1 to see cuisine options.", italic=True)
+        click.echo(options)
+        click.echo("\n")
+        cuisine_prompt = click.style("Cuisine Types", bold=True, fg="yellow")
+        cuisine_input = click.prompt(cuisine_prompt, type=str)
         cuisine_result = process_cuisine_input(cuisine_input, possible_cuisines)
         
         if cuisine_result is not None:
