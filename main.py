@@ -5,9 +5,7 @@ click.clear()
 def start():
     greeting()
     cuisine_types = get_cuisine_types()
-    # click.echo(f"cuisine_types={cuisine_types}")
     diet_types = get_diet_types()
-    # click.echo(f"diet_types={diet_types}")
     
 
 def greeting():
@@ -38,6 +36,11 @@ def get_cuisine_types():
             return cuisine_result
 
 def process_cuisine_input(cuisine_types, possible_cuisines):
+    """
+    Checks if user wants to skip cuisine types, see cuisine options, or entered cuisine types.
+    If user entered cuisine types, checks if they are valid.
+    """
+
     # user wants to skip entering options for cuisine types
     if cuisine_types.strip() == "0":
         cuisine_types = []
@@ -64,7 +67,50 @@ def process_cuisine_input(cuisine_types, possible_cuisines):
     return cuisine_types
     
 def get_diet_types():
-    click.echo("Made it to diet prompt!")
+    possible_diets = ["Gluten Free", "Ketogenic", "Vegetarian", "Lacto-Vegetarian", "Ovo-Vegetarian", "Vegan", "Pescetarian", "Paleo", "Primal", "Low FODMAP", "Whole30"]
+
+    while True:
+        click.echo("List all diet types that your recipe must follow (separate by commas)")
+        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", italic=True)
+        click.echo(options)
+        click.echo("\n")
+        diet_prompt = click.style("Diet Types", bold=True, fg="yellow")
+        diet_input = click.prompt(diet_prompt, type=str)
+        diet_result = process_diet_input(diet_input, possible_diets)
+        
+        if diet_result is not None:
+            return diet_result
+        
+def process_diet_input(diet_types, possible_diets):
+    """
+    Checks if user wants to skip diet types, see diet options, go back to the previous prompt, or entered diet types.
+    If user entered diet types, checks if they are valid.
+    """
+
+    # user wants to skip entering options for diet types
+    if diet_types.strip() == "0":
+        diet_types = []
+        return diet_types
+
+    # user wants to see diet options
+    elif diet_types == "1":
+        click.echo("\nHere are the diet types you can choose from:")
+        click.echo(", ".join(possible_diets))
+        click.echo("\n")
+        diet_types = None
+        return diet_types
+
+    # process diet_types input, seperate by commas, strip whitespace, and make lowercase
+    diet_types = diet_types.split(",")
+    diet_types = [diet.strip().lower() for diet in diet_types]
+
+    # check if diet types are valid
+    for diet in diet_types:
+        if diet.title() not in possible_diets:
+            click.echo("You entred an invalid diet type or have a misspelling. Please try again.")
+            return None
+
+    return diet_types
 
 if __name__ == '__main__':
     start()
