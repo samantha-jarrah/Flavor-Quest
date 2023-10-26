@@ -5,7 +5,15 @@ click.clear()
 def start():
     greeting()
     cuisine_types = get_cuisine_types()
-    diet_types = get_diet_types()
+
+    while True:
+        diet_types = get_diet_types()
+
+        if diet_types is False:
+            click.echo("Going back to re-enter cuisine types.")
+            cuisine_types = get_cuisine_types()
+        else:
+            break
     
 
 def greeting():
@@ -98,6 +106,10 @@ def process_diet_input(diet_types, possible_diets):
         click.echo(", ".join(possible_diets))
         click.echo("\n")
         diet_types = None
+        return diet_types
+    
+    elif diet_types.lower() == "back":
+        diet_types = False
         return diet_types
 
     # process diet_types input, seperate by commas, strip whitespace, and make lowercase
