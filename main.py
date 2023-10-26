@@ -42,8 +42,8 @@ def process_cuisine_input(cuisine_types, possible_cuisines):
         click.echo("\nHere are the cuisine types you can choose from:")
         click.echo(", ".join(possible_cuisines))
         click.echo("\n")
-        get_cuisine_types()
-        return
+        cuisine_types = None
+        return cuisine_types
 
     # process cuisine_types input, seperate by commas, strip whitespace, and make lowercase
     cuisine_types = cuisine_types.split(",")
