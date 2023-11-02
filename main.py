@@ -3,15 +3,29 @@ click.clear()
 
 @click.command()
 def start():
+    # Greet User
     greeting()
+
+    # Gather cuisine types
     cuisine_types = get_cuisine_types()
 
+    # Gather diet types
     while True:
         diet_types = get_diet_types()
 
         if diet_types is False:
             click.echo("Going back to re-enter cuisine types.")
             cuisine_types = get_cuisine_types()
+        else:
+            break
+
+    # Gather food intolerances
+    while True:
+        intolerances = get_intolerances()
+
+        if intolerances is False:
+            click.echo("Going back to re-enter diet types.")
+            diet_types = get_diet_types()
         else:
             break
     
@@ -123,6 +137,56 @@ def process_diet_input(diet_types, possible_diets):
             return None
 
     return diet_types
+
+def get_intolerances():
+    possible_intolerances = ["Dairy", "Egg", "Gluten", "Grain", "Peanut", "Seafood", "Sesame", "Shellfish", "Soy", "Sulfite", "Tree Nut", "Wheat"]
+
+    while True:
+        click.echo("List all food intolerances that your recipe must exclude (separate by commas)")
+        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", italic=True)
+        click.echo(options)
+        click.echo("\n")
+        intolerance_prompt = click.style("Food Intolerances", bold=True, fg="yellow")
+        intolerance_input = click.prompt(intolerance_prompt, type=str)
+        intolerance_result = process_intolerance_input(intolerance_input, possible_intolerances)
+        
+        if intolerance_result is not None:
+            return intolerance_result
+        
+def process_intolerance_input(intolerance_input, possible_intolerances):
+    """
+    Checks if user wants to skip food intolerance input, see intolerance options, go back to the previous prompt, or entered intolerances.
+    If user entered intolerances, checks if they are valid.
+    """
+
+    # user wants to skip entering food intolerances
+    if intolerance_input.strip() == "0":
+        intolerance_result = []
+        return intolerance_result
+
+    # user wants to see intolerance options
+    elif intolerance_input == "1":
+        click.echo("\nHere are the food intolerances you can choose from:")
+        click.echo(", ".join(possible_intolerances))
+        click.echo("\n")
+        intolerance_result = None
+        return intolerance_result
+    
+    elif intolerance_input.lower() == "back":
+        intolerance_result = False
+        return intolerance_result
+
+    # process intolerance_input, seperate by commas, strip whitespace, and make lowercase
+    intolerance_input = intolerance_input.split(",")
+    intolerance_input = [intolerance.strip().lower() for intolerance in intolerance_input]
+
+    # check if intolerances are valid
+    for intolerance in intolerance_input:
+        if intolerance.title() not in possible_intolerances:
+            click.echo("You entred an invalid food intolerance or have a misspelling. Please try again.")
+            return None
+
+    return intolerance_input
 
 if __name__ == '__main__':
     start()
