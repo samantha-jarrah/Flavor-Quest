@@ -7,8 +7,18 @@ def start():
     # Greet User
     greeting()
 
+    # Gather recipe type
+    recipe_type = get_recipe_type()
+
     # Gather cuisine types
-    cuisine_types = get_cuisine_types()
+    while True:
+        cuisine_types = get_cuisine_types()
+
+        if cuisine_types is False:
+            click.echo("Going back to re-enter recipe type.")
+            recipe_type = get_recipe_type()
+        else:
+            break
 
     # Gather diet types
     while True:
@@ -69,6 +79,32 @@ def greeting():
     click.echo(instructions)
     click.echo("\n")
 
+def get_recipe_type():
+    """Asks user what general recipe type they are interested in. May not be skipped."""
+    while True:
+        click.echo("What type of recipe are you interested in? You may only enter 1 recipe type. REQUIRED. examples - Pasta, Stew, Casserole")
+        recipe_type_prompt = click.style("Recipe Type", bold=True, fg="yellow")
+        recipe_type_input = click.prompt(recipe_type_prompt, type=str)
+        click.echo("\n")
+        recipe_type_result = process_recipe_type_input(recipe_type_input)
+        
+        if recipe_type_result is not None:
+            return recipe_type_result
+        
+def process_recipe_type_input(recipe_type_input):
+    # process recipe type input, strip whitespace, make lowercase, and ensure it is a valid response
+    recipe_type_input = recipe_type_input.split(",")
+    recipe_type_input = recipe_type_input[0].strip().lower()
+
+    # check if recipe type are valid (cannot contain numbers or special symbols besides apostrophes)
+    pattern = "^[a-zA-Z' ]+$"
+    if re.match(pattern, recipe_type_input):
+        return recipe_type_input
+    else:
+        click.echo("Your recipe type contained numbers or special characters. Try again.")
+        return None
+
+
 def get_cuisine_types():
     """Asks the user what cuisine types they are interested in. Can be skipped or user can see cuisine options."""
     
@@ -89,7 +125,7 @@ def get_cuisine_types():
 
 def process_cuisine_input(cuisine_types, possible_cuisines):
     """
-    Checks if user wants to skip cuisine types, see cuisine options, or entered cuisine types.
+    Checks if user wants to skip cuisine types, see cuisine options, go back, or entered cuisine types.
     If user entered cuisine types, checks if they are valid.
     """
 
@@ -99,11 +135,15 @@ def process_cuisine_input(cuisine_types, possible_cuisines):
         return cuisine_types
 
     # user wants to see cuisine options
-    elif cuisine_types == "1":
+    elif cuisine_types.strip() == "1":
         click.echo("\nHere are the cuisine types you can choose from:")
         click.echo(", ".join(possible_cuisines))
         click.echo("\n")
         cuisine_types = None
+        return cuisine_types
+    
+    elif cuisine_types.strip().lower() == "back":
+        cuisine_types = False
         return cuisine_types
 
     # process cuisine_types input, seperate by commas, strip whitespace, and make lowercase
@@ -145,14 +185,14 @@ def process_diet_input(diet_types, possible_diets):
         return diet_types
 
     # user wants to see diet options
-    elif diet_types == "1":
+    elif diet_types.strip() == "1":
         click.echo("\nHere are the diet types you can choose from:")
         click.echo(", ".join(possible_diets))
         click.echo("\n")
         diet_types = None
         return diet_types
     
-    elif diet_types.lower() == "back":
+    elif diet_types.strip().lower() == "back":
         diet_types = False
         return diet_types
 
@@ -195,7 +235,7 @@ def process_intolerance_input(intolerance_input, possible_intolerances):
         return intolerance_result
 
     # user wants to see intolerance options
-    elif intolerance_input == "1":
+    elif intolerance_input.strip() == "1":
         click.echo("\nHere are the food intolerances you can choose from:")
         click.echo(", ".join(possible_intolerances))
         click.echo("\n")
@@ -305,7 +345,7 @@ def process_meal_type_input(meal_type_input, possible_meal_types):
         return meal_type_result
 
     # user wants to see meal type options
-    elif meal_type_input == "1":
+    elif meal_type_input.strip() == "1":
         click.echo("\nHere are the meal types you can choose from:")
         click.echo(", ".join(possible_meal_types))
         click.echo("\n")
