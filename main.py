@@ -1,4 +1,5 @@
 import click
+import re
 click.clear()
 
 @click.command()
@@ -26,6 +27,16 @@ def start():
         if intolerances is False:
             click.echo("Going back to re-enter diet types.")
             diet_types = get_diet_types()
+        else:
+            break
+
+    # Gather ingredients to include
+    while True:
+        include_ingredients = get_include_ingredients()
+
+        if include_ingredients is False:
+            click.echo("Going back to re-enter food intolerances.")
+            intolerances = get_intolerances()
         else:
             break
     
@@ -187,6 +198,50 @@ def process_intolerance_input(intolerance_input, possible_intolerances):
             return None
 
     return intolerance_input
+
+def get_include_ingredients():
+    """Get ingredients that must be included in recipe"""
+
+    while True:
+        click.echo("List all ingredients that must be included in your recipe (separate by commas)")
+        options = click.style("0 = skip, 'Back'= Return to previous prompt", italic=True)
+        click.echo(options)
+        include_ingredient_prompt = click.style("Ingredients to Include", bold=True, fg="yellow")
+        include_ingredient_input = click.prompt(include_ingredient_prompt, type=str)
+        include_ingredient_result = process_include_ingredient_input(include_ingredient_input)
+        
+        if include_ingredient_result is not None:
+            return include_ingredient_result
+        
+def process_include_ingredient_input(ingredient_input):
+    """
+    Checks if user wants to skip ingredient inclusion input, go back to the previous prompt, or entered ingredients to include.
+    If user entered ingredients, checks if they are valid.
+    """
+
+    # user wants to skip entering ingredients
+    if ingredient_input.strip() == "0":
+        ingredient_result = []
+        return ingredient_result
+    
+    elif ingredient_input.lower() == "back":
+        ingredient_result = False
+        return ingredient_result
+
+    # process ingredient_input, seperate by commas, strip whitespace, and make lowercase
+    ingredient_input = ingredient_input.split(",")
+    ingredient_input = [ingredient.strip().lower() for ingredient in ingredient_input]
+
+    # check if ingredients are valid (cannot contain numbers or special symbols besides apostrophes)
+    pattern = "^[a-zA-Z' ]+$"
+    for ingredient in ingredient_input:
+        if re.match(pattern, ingredient):
+            continue
+        else:
+            click.echo("One or more of your ingredients contained numbers or special characters. Try again.")
+            return None
+
+    return ingredient_input
 
 if __name__ == '__main__':
     start()
