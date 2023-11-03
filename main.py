@@ -39,6 +39,16 @@ def start():
             intolerances = get_intolerances()
         else:
             break
+
+    # Gather ingredients to exclude
+    while True:
+        exclude_ingredients = get_exclude_ingredients()
+
+        if exclude_ingredients is False:
+            click.echo("Going back to re-enter ingredients to include.")
+            include_ingredients = get_include_ingredients()
+        else:
+            break
     
 
 def greeting():
@@ -208,14 +218,28 @@ def get_include_ingredients():
         click.echo(options)
         include_ingredient_prompt = click.style("Ingredients to Include", bold=True, fg="yellow")
         include_ingredient_input = click.prompt(include_ingredient_prompt, type=str)
-        include_ingredient_result = process_include_ingredient_input(include_ingredient_input)
+        include_ingredient_result = process_ingredient_input(include_ingredient_input)
         
         if include_ingredient_result is not None:
             return include_ingredient_result
         
-def process_include_ingredient_input(ingredient_input):
+def get_exclude_ingredients():
+    """Get ingredients that must be excluded in recipe"""
+
+    while True:
+        click.echo("List all ingredients that must be excluded from your recipe (separate by commas)")
+        options = click.style("0 = skip, 'Back'= Return to previous prompt", italic=True)
+        click.echo(options)
+        exclude_ingredient_prompt = click.style("Ingredients to Exclude", bold=True, fg="yellow")
+        exclude_ingredient_input = click.prompt(exclude_ingredient_prompt, type=str)
+        exclude_ingredient_result = process_ingredient_input(exclude_ingredient_input)
+        
+        if exclude_ingredient_result is not None:
+            return exclude_ingredient_result
+        
+def process_ingredient_input(ingredient_input):
     """
-    Checks if user wants to skip ingredient inclusion input, go back to the previous prompt, or entered ingredients to include.
+    Checks if user wants to skip ingredient input, go back to the previous prompt, or entered ingredients.
     If user entered ingredients, checks if they are valid.
     """
 
