@@ -50,6 +50,15 @@ def start():
         else:
             break
     
+    # Gather meal types
+    while True:
+        meal_types = get_meal_types()
+
+        if meal_types is False:
+            click.echo("Going back to re-enter ingredients to exclude.")
+            exclude_ingredients = get_exclude_ingredients()
+        else:
+            break
 
 def greeting():
     """Greets the user and explains the purpose of Flavor Quest."""
@@ -70,9 +79,9 @@ def get_cuisine_types():
         click.echo("What cuisine types are you interested in? (separate by commas)")
         options = click.style("Enter 0 to skip this step or 1 to see cuisine options.", italic=True)
         click.echo(options)
-        click.echo("\n")
         cuisine_prompt = click.style("Cuisine Types", bold=True, fg="yellow")
         cuisine_input = click.prompt(cuisine_prompt, type=str)
+        click.echo("\n")
         cuisine_result = process_cuisine_input(cuisine_input, possible_cuisines)
         
         if cuisine_result is not None:
@@ -116,9 +125,9 @@ def get_diet_types():
         click.echo("List all diet types that your recipe must follow (separate by commas)")
         options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", italic=True)
         click.echo(options)
-        click.echo("\n")
         diet_prompt = click.style("Diet Types", bold=True, fg="yellow")
         diet_input = click.prompt(diet_prompt, type=str)
+        click.echo("\n")
         diet_result = process_diet_input(diet_input, possible_diets)
         
         if diet_result is not None:
@@ -166,9 +175,9 @@ def get_intolerances():
         click.echo("List all food intolerances that your recipe must exclude (separate by commas)")
         options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", italic=True)
         click.echo(options)
-        click.echo("\n")
         intolerance_prompt = click.style("Food Intolerances", bold=True, fg="yellow")
         intolerance_input = click.prompt(intolerance_prompt, type=str)
+        click.echo("\n")
         intolerance_result = process_intolerance_input(intolerance_input, possible_intolerances)
         
         if intolerance_result is not None:
@@ -218,6 +227,7 @@ def get_include_ingredients():
         click.echo(options)
         include_ingredient_prompt = click.style("Ingredients to Include", bold=True, fg="yellow")
         include_ingredient_input = click.prompt(include_ingredient_prompt, type=str)
+        click.echo("\n")
         include_ingredient_result = process_ingredient_input(include_ingredient_input)
         
         if include_ingredient_result is not None:
@@ -232,6 +242,7 @@ def get_exclude_ingredients():
         click.echo(options)
         exclude_ingredient_prompt = click.style("Ingredients to Exclude", bold=True, fg="yellow")
         exclude_ingredient_input = click.prompt(exclude_ingredient_prompt, type=str)
+        click.echo("\n")
         exclude_ingredient_result = process_ingredient_input(exclude_ingredient_input)
         
         if exclude_ingredient_result is not None:
@@ -266,6 +277,56 @@ def process_ingredient_input(ingredient_input):
             return None
 
     return ingredient_input
+
+def get_meal_types():
+    possible_meal_types = ["Main Course", "Side Dish", "Dessert", "Appetizer", "Salad", "Bread", "Breakfast", "Soup", "Beverage", "Sauce", "Marinade", "Fingerfood", "Snack", "Drink"]
+
+    while True:
+        click.echo("List all meal types that you are interested in (separate by commas)")
+        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", italic=True)
+        click.echo(options)
+        meal_type_prompt = click.style("Meal Types", bold=True, fg="yellow")
+        meal_type_input = click.prompt(meal_type_prompt, type=str)
+        click.echo("\n")
+        meal_type_result = process_meal_type_input(meal_type_input, possible_meal_types)
+        
+        if meal_type_result is not None:
+            return meal_type_result
+        
+def process_meal_type_input(meal_type_input, possible_meal_types):
+    """
+    Checks if user wants to skip meal type input, see meal type options, go back to the previous prompt, or entered meal types.
+    If user entered meal types, checks if they are valid.
+    """
+
+    # user wants to skip entering meal types
+    if meal_type_input.strip() == "0":
+        meal_type_result = []
+        return meal_type_result
+
+    # user wants to see meal type options
+    elif meal_type_input == "1":
+        click.echo("\nHere are the meal types you can choose from:")
+        click.echo(", ".join(possible_meal_types))
+        click.echo("\n")
+        meal_type_result = None
+        return meal_type_result
+    
+    elif meal_type_input.lower() == "back":
+        meal_type_result = False
+        return meal_type_result
+
+    # process meal_type_input, seperate by commas, strip whitespace, and make lowercase
+    meal_type_input = meal_type_input.split(",")
+    meal_type_input = [meal.strip().lower() for meal in meal_type_input]
+
+    # check if meal types are valid
+    for meal in meal_type_input:
+        if meal.title() not in possible_meal_types:
+            click.echo("You entred an invalid meal type or have a misspelling. Please try again.")
+            return None
+
+    return meal_type_input
 
 if __name__ == '__main__':
     start()
