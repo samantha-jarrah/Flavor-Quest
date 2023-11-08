@@ -70,6 +70,45 @@ def start():
         else:
             break
 
+    # create JSON_str to send to microservice
+    json_str = '{'
+    if recipe_type:
+        json_str = json_str + f'"query" : "{recipe_type}", '
+
+    if cuisine_types:
+        json_str = json_str + '"cuisine": "'
+        for cuisine in cuisine_types:
+            json_str = json_str + f'{cuisine}, '
+        json_str = json_str + ', '
+    
+    if diet_types:
+        json_str = json_str + '"diet": "'
+        for diet in diet_types:
+            json_str = json_str + f'{diet}, '
+        json_str = json_str + '", '
+
+    if intolerances:
+        json_str = json_str + '"intolerances": "'
+        for intolerance in intolerances:
+            json_str = json_str + f'{intolerance}, '
+        json_str = json_str + '", '
+
+    if include_ingredients:
+        json_str = json_str + '"includeIngredients": "'
+        for ingredient in include_ingredients:
+            json_str = json_str + f'{ingredient}, '
+        json_str = json_str + '", '
+
+    if exclude_ingredients:
+        json_str = json_str + '"excludeIngredients": "'
+        for ingredient in exclude_ingredients:
+            json_str = json_str + f'{ingredient}, '
+        json_str = json_str + '", '
+
+    json_str = json_str + '"instructionsRequired": "true", "addRecipeInformation": "true"}'
+    print(json_str)
+
+
 def greeting():
     """Greets the user and explains the purpose of Flavor Quest."""
     greeting = click.style("Welcome to Flavor Quest!", fg="green", bg="white", bold=True)
@@ -80,10 +119,14 @@ def greeting():
     click.echo("\n")
 
 def get_recipe_type():
-    """Asks user what general recipe type they are interested in. May not be skipped."""
+    """Asks user what general recipe type they are interested in."""
+
+    options = click.style("Enter 0 to skip this step.", italic=True)
+
     while True:
-        click.echo("What type of recipe are you interested in? You may only enter 1 recipe type. REQUIRED. examples - Pasta, Stew, Casserole")
+        click.echo("What type of recipe are you interested in? You may only enter 1 recipe type. examples - Pasta, Lamb Stew, Chicken Potato Casserole")
         recipe_type_prompt = click.style("Recipe Type", bold=True, fg="yellow")
+        click.echo(options)
         recipe_type_input = click.prompt(recipe_type_prompt, type=str)
         click.echo("\n")
         recipe_type_result = process_recipe_type_input(recipe_type_input)
@@ -92,6 +135,12 @@ def get_recipe_type():
             return recipe_type_result
         
 def process_recipe_type_input(recipe_type_input):
+
+     # user wants to skip entering recipe type
+    if recipe_type_input.strip() == "0":
+        recipe_type_input = []
+        return recipe_type_input
+    
     # process recipe type input, strip whitespace, make lowercase, and ensure it is a valid response
     recipe_type_input = recipe_type_input.split(",")
     recipe_type_input = recipe_type_input[0].strip().lower()
