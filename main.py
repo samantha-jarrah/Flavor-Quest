@@ -1,5 +1,8 @@
 import click
 import re
+import requests
+
+# clears the terminal
 click.clear()
 
 @click.command()
@@ -106,8 +109,16 @@ def start():
         json_str = json_str + '", '
 
     json_str = json_str + '"instructionsRequired": "true", "addRecipeInformation": "true"}'
-    print(json_str)
 
+    flask_url = "http://localhost:8003/"
+    response = requests.get(flask_url, params={"json_str": json_str})
+
+    recipe = response.json()
+    # print(type(recipe))
+    # print(recipe)
+    
+
+# functions below
 
 def greeting():
     """Greets the user and explains the purpose of Flavor Quest."""
