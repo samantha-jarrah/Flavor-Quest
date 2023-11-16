@@ -108,14 +108,14 @@ def start():
             json_str = json_str + f'{ingredient}, '
         json_str = json_str + '", '
 
-    json_str = json_str + '"instructionsRequired": "true", "addRecipeInformation": "true"}'
+    json_str = json_str + '"instructionsRequired": "true", "fillIngredients": "true", "addRecipeInformation": "true"}'
 
     flask_url = "http://localhost:8003/"
     response = requests.get(flask_url, params={"json_str": json_str})
 
     recipe = response.json()
     # print(type(recipe))
-    # print(recipe)
+    print(recipe)
     
 
 # functions below
