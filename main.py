@@ -82,7 +82,7 @@ def start():
         json_str = json_str + '"cuisine": "'
         for cuisine in cuisine_types:
             json_str = json_str + f'{cuisine}, '
-        json_str = json_str + ', '
+        json_str = json_str + '", '
     
     if diet_types:
         json_str = json_str + '"diet": "'
@@ -109,11 +109,12 @@ def start():
         json_str = json_str + '", '
 
     json_str = json_str + '"instructionsRequired": "true", "fillIngredients": "true", "addRecipeInformation": "true"}'
-
+    # print("json_str=", json_str)
     flask_url = "http://localhost:8003/"
     response = requests.get(flask_url, params={"json_str": json_str})
-
+    # print("Made it to response!")
     recipe = response.json()
+    # print("parsed JSON!")
     # print(type(recipe))
     print(recipe)
     
