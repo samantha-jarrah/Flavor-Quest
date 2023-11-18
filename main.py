@@ -112,11 +112,13 @@ def start():
     # print("json_str=", json_str)
     flask_url = "http://localhost:8003/"
     response = requests.get(flask_url, params={"json_str": json_str})
-    # print("Made it to response!")
-    recipe = response.json()
-    # print("parsed JSON!")
-    # print(type(recipe))
-    print(recipe)
+
+    if response.text == "Sorry no recipe was found, try again":
+        print("Sorry, No recipe found!")
+    else:
+        recipe = response.json()
+        print(recipe)
+    
     
 
 # functions below
