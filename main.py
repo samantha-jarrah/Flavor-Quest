@@ -1,6 +1,7 @@
 import click
 import re
 import requests
+from pdfGenerator import buildRecipePDF
 
 # clears the terminal
 click.clear()
@@ -114,10 +115,12 @@ def start():
     response = requests.get(flask_url, params={"json_str": json_str})
 
     if response.text == "Sorry no recipe was found, try again":
-        print("Sorry, No recipe found!")
+        response = "Sorry, no recipe found using those search parameters!"
+        click.echo(response)
     else:
         recipe = response.json()
         print(recipe)
+        buildRecipePDF(recipe)
     
     
 
