@@ -113,19 +113,23 @@ def start():
     # print("json_str=", json_str)
     flask_url = "http://localhost:8003/"
     response = requests.get(flask_url, params={"json_str": json_str})
-    # print("response.text=", response.text)  # Print the response content
+    print("response.text=", response.text)  # Print the response content
 
     if response.text == "Sorry no recipe was found, try again":
         response = "Sorry, no recipe found using those search parameters!"
         click.echo(response)
     else:
-        recipe = response.json()
-        # print(recipe)
-        path = buildRecipePDF(recipe)
-        response = "Your recipe has been created!"
-        response_path = f"Find it at: {path}"
-        click.echo(response)
-        click.echo(response_path)
+        try:
+            recipe = response.json()
+            # print(recipe)
+            path = buildRecipePDF(recipe)
+            response = "Your recipe has been created!"
+            response_path = f"Find it at: {path}"
+            click.echo(response)
+            click.echo(response_path)
+        except requests.exceptions.JSONDecodeError:
+            error_msg = "There was an error. Try again!"
+            click.echo(error_msg)
     
     
 
