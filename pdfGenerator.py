@@ -1,13 +1,19 @@
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Image
 from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.utils import ImageReader
+import os
 
 def buildRecipePDF(recipe):
     recipeName = recipe['title']
     webpage = recipe['sourceUrl']
     servings = recipe["servings"]
     time = recipe["readyInMinutes"]
-    summary = recipe["summary"]
+    # summary = recipe["summary"]
+    file_name = f"{recipeName}.pdf"
+    imageURL = recipe["image"]
+    pdf_path = os.path.abspath(file_name)
+    pdf = SimpleDocTemplate(file_name)
 
     ingredients = []
     steps = {}
@@ -18,8 +24,7 @@ def buildRecipePDF(recipe):
         for j in i["steps"]:
             steps[j[str("number")]] = j["step"]
 
-    fileName = f"{recipeName}.pdf"  # use f-string to get recipe title
-    pdf = SimpleDocTemplate(fileName)
+    
 
     flowables = []
 
@@ -30,7 +35,8 @@ def buildRecipePDF(recipe):
     flowables.append(Paragraph(f"Recipe from: {webpage}", sss["Heading4"]))   # source URL
     flowables.append(Paragraph(f"{servings} servings", sss["Heading4"]))   # servings
     flowables.append(Paragraph(f"Time to make: {time}", sss["Heading4"]))   # time to make recipe
-    flowables.append(Paragraph(summary, sss["Normal"]))
+    # flowables.append(Image(image, width=200, height=200))
+    # flowables.append(Paragraph(summary, sss["Normal"]))
     flowables.append(Paragraph("Ingredients", sss["Heading3"]))  # ingredient header
 
     for ingredient in ingredients:   # ingredient list
@@ -41,4 +47,5 @@ def buildRecipePDF(recipe):
     for num, direction in steps.items():   # instructions
         flowables.append(Paragraph(f"{num}) {direction}"))
     pdf.build(flowables)
+    return pdf_path
 
