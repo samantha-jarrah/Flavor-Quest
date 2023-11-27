@@ -8,18 +8,19 @@ from reportlab.lib import utils
 
 
 def buildRecipePDF(recipe):
+    """Parses recipe input and saves into list of flowables to be rendered in PDF using reportlab library"""
+
     recipeName = recipe['title']
     webpage = recipe['sourceUrl']
     servings = recipe["servings"]
     time = recipe["readyInMinutes"]
-    # summary = recipe["summary"]
     file_name = f"{recipeName}.pdf"
 
     imageURL = recipe["image"]
     response = requests.get(imageURL)
     image_data = BytesIO(response.content)
 
-    pdf_path = os.path.abspath(file_name)
+    pdf_path = os.path.abspath(file_name)   # where pdf will be saved to computer
     pdf = SimpleDocTemplate(file_name)
 
     ingredients = []
@@ -36,14 +37,12 @@ def buildRecipePDF(recipe):
     flowables = []
 
     sss = getSampleStyleSheet()
-    # print(sss.list())
 
     flowables.append(Paragraph(recipeName.title(), sss["Title"])) # recipe title
     flowables.append(Paragraph(f"Recipe from: {webpage}", sss["Heading4"]))   # source URL
     flowables.append(Paragraph(f"{servings} servings", sss["Heading4"]))   # servings
     flowables.append(Paragraph(f"Time to make: {time}", sss["Heading4"]))   # time to make recipe
     flowables.append(Image(image_data))
-    # flowables.append(Paragraph(summary, sss["Normal"]))
     flowables.append(Paragraph("Ingredients", sss["Heading3"]))  # ingredient header
 
     for ingredient in ingredients:   # ingredient list

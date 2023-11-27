@@ -110,10 +110,9 @@ def start():
         json_str = json_str + '", '
 
     json_str = json_str + '"instructionsRequired": "true", "fillIngredients": "true", "addRecipeInformation": "true"}'
-    # print("json_str=", json_str)
     flask_url = "http://localhost:8003/"
     response = requests.get(flask_url, params={"json_str": json_str})
-    print("response.text=", response.text)  # Print the response content
+    # print("response.text=", response.text)  # Print the response content
 
     if response.text == "Sorry no recipe was found, try again":
         response = "Sorry, no recipe found using those search parameters!"
@@ -121,7 +120,6 @@ def start():
     else:
         try:
             recipe = response.json()
-            # print(recipe)
             path = buildRecipePDF(recipe)
             response = "Your recipe has been created!"
             response_path = f"Find it at: {path}"
