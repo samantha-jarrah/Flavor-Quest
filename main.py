@@ -1,6 +1,7 @@
 import click
 import re
 import requests
+import json
 from pdfGenerator import buildRecipePDF
 
 # clears the terminal
@@ -75,44 +76,26 @@ def start():
             break
 
     # create JSON_str to send to microservice
-    json_str = '{'
+    json_data = {}
     if recipe_type:
-        json_str = json_str + f'"query" : "{recipe_type}", '
-
+        json_data["query"] = recipe_type
     if cuisine_types:
-        json_str = json_str + '"cuisine": "'
-        for cuisine in cuisine_types:
-            json_str = json_str + f'{cuisine}, '
-        json_str = json_str + '", '
-    
+        json_data["cuisine"] = cuisine_types
     if diet_types:
-        json_str = json_str + '"diet": "'
-        for diet in diet_types:
-            json_str = json_str + f'{diet}, '
-        json_str = json_str + '", '
-
+        json_data["diet"] = diet_types
     if intolerances:
-        json_str = json_str + '"intolerances": "'
-        for intolerance in intolerances:
-            json_str = json_str + f'{intolerance}, '
-        json_str = json_str + '", '
-
+        json_data["intolerances"] = intolerances
     if include_ingredients:
-        json_str = json_str + '"includeIngredients": "'
-        for ingredient in include_ingredients:
-            json_str = json_str + f'{ingredient}, '
-        json_str = json_str + '", '
-
+        json_data["includeIngredients"] = include_ingredients
     if exclude_ingredients:
-        json_str = json_str + '"excludeIngredients": "'
-        for ingredient in exclude_ingredients:
-            json_str = json_str + f'{ingredient}, '
-        json_str = json_str + '", '
-
-    json_str = json_str + '"instructionsRequired": "true", "fillIngredients": "true", "addRecipeInformation": "true"}'
+        json_data["excludeIngredients"] = exclude_ingredients
+    json_data["instructionsRequired"] = "true"
+    json_data["fillIngredients"] = "true"
+    json_data["addRecipeInformation"] = "true"
+    json_str = json.dumps(json_data)
+    
     flask_url = "http://localhost:8003/"
     response = requests.get(flask_url, params={"json_str": json_str})
-    # print("response.text=", response.text)  # Print the response content
 
     if response.text == "Sorry no recipe was found, try again":
         response = "Sorry, no recipe found using those search parameters!"
@@ -121,8 +104,9 @@ def start():
         try:
             recipe = response.json()
             path = buildRecipePDF(recipe)
-            response = "Your recipe has been created!"
-            response_path = f"Find it at: {path}"
+            click.launch(path, locate=True)
+            response = click.style("Your recipe has been created!", fg="blue", bg="white", bold=True)
+            response_path = f"If it has not already opened, it can be found at:\n {path}"
             click.echo(response)
             click.echo(response_path)
         except requests.exceptions.JSONDecodeError:
@@ -135,10 +119,10 @@ def start():
 
 def greeting():
     """Greets the user and explains the purpose of Flavor Quest."""
-    greeting = click.style("Welcome to Flavor Quest!", fg="green", bg="white", bold=True)
+    greeting = click.style("Welcome to Flavor Quest!", fg="blue", bg="white", bold=True)
     click.echo(greeting)
     click.echo("\n")
-    instructions = click.style("After answering just a few, quick, questions about your food intolerances, cuisine preferences, and more, we will show you a tasty recipe to try. If at any point you want to skip a question, enter 0, or if you’d like to see more details about the question, enter 1. Lastly, if you want to go back and change your response, enter 'Back'.", italic=True)
+    instructions = click.style("After answering just a few questions about your food intolerances, cuisine preferences, and more, we will show you a tasty recipe to try. Answer as many or as few questions as you'd like. If at any point you want to skip a question, enter 0, or if you’d like to see more details about the question, enter 1. Lastly, if you want to go back and change your response, enter 'Back'.", italic=True)
     click.echo(instructions)
     click.echo("\n")
 
@@ -148,7 +132,7 @@ def get_recipe_type():
     options = click.style("Enter 0 to skip this step.", italic=True)
 
     while True:
-        click.echo("What type of recipe are you interested in? You may only enter 1 recipe type. examples - Pasta, Lamb Stew, Chicken Potato Casserole")
+        click.echo("What type of recipe are you interested in? You may only enter 1 recipe type. \n examples - Lemon Pasta, Spicy Lamb Stew, Chicken Potato Casserole\n **Tip: The more specific you are here, the less specific it is recommended to be in future questions**")
         recipe_type_prompt = click.style("Recipe Type", bold=True, fg="yellow")
         click.echo(options)
         recipe_type_input = click.prompt(recipe_type_prompt, type=str)
@@ -232,6 +216,8 @@ def process_cuisine_input(cuisine_types, possible_cuisines):
     return cuisine_types
     
 def get_diet_types():
+    """Asks the user what diet types they are interested in. Can be skipped or user can see diet options."""
+
     possible_diets = ["Gluten Free", "Ketogenic", "Vegetarian", "Lacto-Vegetarian", "Ovo-Vegetarian", "Vegan", "Pescetarian", "Paleo", "Primal", "Low FODMAP", "Whole30"]
 
     while True:
@@ -282,6 +268,8 @@ def process_diet_input(diet_types, possible_diets):
     return diet_types
 
 def get_intolerances():
+    """Asks the user what intolerances their recipe must conform to. Can be skipped or user can see intolerance options."""
+
     possible_intolerances = ["Dairy", "Egg", "Gluten", "Grain", "Peanut", "Seafood", "Sesame", "Shellfish", "Soy", "Sulfite", "Tree Nut", "Wheat"]
 
     while True:
@@ -392,6 +380,8 @@ def process_ingredient_input(ingredient_input):
     return ingredient_input
 
 def get_meal_types():
+    """Asks the user what meal types they are interested in. Can be skipped or user can see possible meal types."""
+
     possible_meal_types = ["Main Course", "Side Dish", "Dessert", "Appetizer", "Salad", "Bread", "Breakfast", "Soup", "Beverage", "Sauce", "Marinade", "Fingerfood", "Snack", "Drink"]
 
     while True:

@@ -1,6 +1,6 @@
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import os
 import requests
 from io import BytesIO
@@ -37,11 +37,12 @@ def buildRecipePDF(recipe):
     flowables = []
 
     sss = getSampleStyleSheet()
+    # print(sss.list())
 
     flowables.append(Paragraph(recipeName.title(), sss["Title"])) # recipe title
-    flowables.append(Paragraph(f"Recipe from: {webpage}", sss["Heading4"]))   # source URL
-    flowables.append(Paragraph(f"{servings} servings", sss["Heading4"]))   # servings
-    flowables.append(Paragraph(f"Time to make: {time}", sss["Heading4"]))   # time to make recipe
+    flowables.append(Paragraph(f"Recipe from: {webpage}", sss["Heading5"]))   # source URL
+    flowables.append(Paragraph(f"{servings} servings", sss["Heading6"]))   # servings
+    flowables.append(Paragraph(f"Time to make: {time}", sss["Heading6"]))   # time to make recipe
     flowables.append(Image(image_data))
     flowables.append(Paragraph("Ingredients", sss["Heading3"]))  # ingredient header
 
