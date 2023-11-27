@@ -1,8 +1,9 @@
-import click
-import re
-import requests
 import json
-from pdfGenerator import buildRecipePDF
+import re
+import click
+import requests
+
+from pdf_generator import build_recipe_pdf
 
 # clears the terminal
 click.clear()
@@ -103,7 +104,7 @@ def start():
     else:
         try:
             recipe = response.json()
-            path = buildRecipePDF(recipe)
+            path = build_recipe_pdf(recipe)
             click.launch(path, locate=True)
             response = click.style("Your recipe has been created!", fg="blue", bg="white", bold=True)
             response_path = f"If it has not already opened, it can be found at:\n {path}"
@@ -113,14 +114,12 @@ def start():
             error_msg = "There was an error. Try again!"
             click.echo(error_msg)
     
-    
-
 # functions below
 
 def greeting():
     """Greets the user and explains the purpose of Flavor Quest."""
-    greeting = click.style("Welcome to Flavor Quest!", fg="blue", bg="white", bold=True)
-    click.echo(greeting)
+    greet = click.style("Welcome to Flavor Quest!", fg="blue", bg="white", bold=True)
+    click.echo(greet)
     click.echo("\n")
     instructions = click.style("After answering just a few questions about your food intolerances, cuisine preferences, and more, we will show you a tasty recipe to try. Answer as many or as few questions as you'd like. If at any point you want to skip a question, enter 0, or if you’d like to see more details about the question, enter 1. Lastly, if you want to go back and change your response, enter 'Back'.", italic=True)
     click.echo(instructions)
@@ -157,9 +156,8 @@ def process_recipe_type_input(recipe_type_input):
     pattern = "^[a-zA-Z' ]+$"
     if re.match(pattern, recipe_type_input):
         return recipe_type_input
-    else:
-        click.echo("Your recipe type contained numbers or special characters. Try again.")
-        return None
+    click.echo("Your recipe type contained numbers or special characters. Try again.")
+    return None
 
 
 def get_cuisine_types():
@@ -373,9 +371,8 @@ def process_ingredient_input(ingredient_input):
     for ingredient in ingredient_input:
         if re.match(pattern, ingredient):
             continue
-        else:
-            click.echo("One or more of your ingredients contained numbers or special characters. Try again.")
-            return None
+        click.echo("One or more of your ingredients contained numbers or special characters. Try again.")
+        return None
 
     return ingredient_input
 
@@ -433,3 +430,4 @@ def process_meal_type_input(meal_type_input, possible_meal_types):
 
 if __name__ == '__main__':
     start()
+    

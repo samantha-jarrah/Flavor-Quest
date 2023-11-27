@@ -1,23 +1,22 @@
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Image
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import os
-import requests
 from io import BytesIO
-from reportlab.lib import utils
+import requests
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Image
+from reportlab.lib.styles import getSampleStyleSheet
+# from reportlab.lib import utils
 
 
-def buildRecipePDF(recipe):
+def build_recipe_pdf(recipe):
     """Parses recipe input and saves into list of flowables to be rendered in PDF using reportlab library"""
 
-    recipeName = recipe['title']
+    recipe_name = recipe['title']
     webpage = recipe['sourceUrl']
     servings = recipe["servings"]
     time = recipe["readyInMinutes"]
-    file_name = f"{recipeName}.pdf"
+    file_name = f"{recipe_name}.pdf"
 
-    imageURL = recipe["image"]
-    response = requests.get(imageURL)
+    image_url = recipe["image"]
+    response = requests.get(image_url)
     image_data = BytesIO(response.content)
 
     pdf_path = os.path.abspath(file_name)   # where pdf will be saved to computer
@@ -32,14 +31,11 @@ def buildRecipePDF(recipe):
         for j in i["steps"]:
             steps[j[str("number")]] = j["step"]
 
-    
-
     flowables = []
 
     sss = getSampleStyleSheet()
-    # print(sss.list())
 
-    flowables.append(Paragraph(recipeName.title(), sss["Title"])) # recipe title
+    flowables.append(Paragraph(recipe_name.title(), sss["Title"])) # recipe title
     flowables.append(Paragraph(f"Recipe from: {webpage}", sss["Heading5"]))   # source URL
     flowables.append(Paragraph(f"{servings} servings", sss["Heading6"]))   # servings
     flowables.append(Paragraph(f"Time to make: {time}", sss["Heading6"]))   # time to make recipe
@@ -55,4 +51,3 @@ def buildRecipePDF(recipe):
         flowables.append(Paragraph(f"{num}) {direction}"))
     pdf.build(flowables)
     return pdf_path
-
