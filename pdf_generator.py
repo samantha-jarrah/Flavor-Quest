@@ -5,7 +5,10 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Image
 from reportlab.lib.styles import getSampleStyleSheet
 
 def build_recipe_pdf(recipe):
-    """Parses recipe input and saves into list of flowables to be rendered in PDF using reportlab library"""
+    """
+    Parses recipe input and saves into list of flowables 
+    to be rendered in PDF using reportlab library
+    """
 
     recipe_name = recipe['title']
     webpage = recipe['sourceUrl']
@@ -17,7 +20,7 @@ def build_recipe_pdf(recipe):
     response = requests.get(image_url)
     image_data = BytesIO(response.content)
 
-    pdf_path = os.path.abspath(file_name)   # where pdf will be saved to computer
+    pdf_path = os.path.abspath(file_name) # where pdf will be saved to computer
     pdf = SimpleDocTemplate(file_name)
 
     ingredients = []   
@@ -32,20 +35,21 @@ def build_recipe_pdf(recipe):
     flowables = []   # what gets rendered on pdf
 
     sss = getSampleStyleSheet()
-
-    flowables.append(Paragraph(recipe_name.title(), sss["Title"])) # recipe title
-    flowables.append(Paragraph(f"Recipe from: {webpage}", sss["Heading5"]))   # source URL
-    flowables.append(Paragraph(f"{servings} servings", sss["Heading6"]))   # servings
-    flowables.append(Paragraph(f"Time to make (minutes): {time}", sss["Heading6"]))   # time to make recipe
-    flowables.append(Image(image_data))   # image
-    flowables.append(Paragraph("Ingredients", sss["Heading3"]))  # ingredient header
+    # append to flowables: recipe title, sourceURL, servings, 
+    # time to make, image, ingredients, instructions
+    flowables.append(Paragraph(recipe_name.title(), sss["Title"]))
+    flowables.append(Paragraph(f"Recipe from: {webpage}", sss["Heading5"]))
+    flowables.append(Paragraph(f"{servings} servings", sss["Heading6"]))
+    flowables.append(Paragraph(f"Time to make (minutes): {time}", sss["Heading6"]))
+    flowables.append(Image(image_data))
+    flowables.append(Paragraph("Ingredients", sss["Heading3"]))
 
     for ingredient in ingredients:
         flowables.append(Paragraph(f"- {ingredient}", sss["Normal"]))
 
-    flowables.append(Paragraph("Instructions", sss["Heading3"]))  # instruction header
+    flowables.append(Paragraph("Instructions", sss["Heading3"]))
 
-    for num, direction in steps.items():   # instructions
+    for num, direction in steps.items():
         flowables.append(Paragraph(f"{num}) {direction}"))
     pdf.build(flowables)
     return pdf_path
