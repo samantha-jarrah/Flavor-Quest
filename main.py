@@ -4,6 +4,7 @@ import click
 import requests
 
 from pdf_generator import build_recipe_pdf
+from json_str import create_json_str
 
 # clears the terminal
 click.clear()
@@ -76,25 +77,7 @@ def start():
         else:
             break
 
-    # create JSON_str to send to microservice
-    json_data = {}
-    if recipe_type:
-        json_data["query"] = recipe_type
-    if cuisine_types:
-        json_data["cuisine"] = cuisine_types
-    if diet_types:
-        json_data["diet"] = diet_types
-    if intolerances:
-        json_data["intolerances"] = intolerances
-    if include_ingredients:
-        json_data["includeIngredients"] = include_ingredients
-    if exclude_ingredients:
-        json_data["excludeIngredients"] = exclude_ingredients
-    json_data["instructionsRequired"] = "true"
-    json_data["fillIngredients"] = "true"
-    json_data["addRecipeInformation"] = "true"
-    json_str = json.dumps(json_data)
-    
+    json_str = create_json_str(recipe_type, cuisine_types, diet_types, intolerances, include_ingredients, exclude_ingredients)
     flask_url = "http://localhost:8003/"
     response = requests.get(flask_url, params={"json_str": json_str})
 
@@ -106,7 +89,8 @@ def start():
             recipe = response.json()
             path = build_recipe_pdf(recipe)
             click.launch(path, locate=True)
-            response = click.style("Your recipe has been created!", fg="blue", bg="white", bold=True)
+            response = click.style("Your recipe has been created!", \
+            fg="blue", bg="white", bold=True)
             response_path = f"If it has not already opened, it can be found at:\n {path}"
             click.echo(response)
             click.echo(response_path)
@@ -115,13 +99,18 @@ def start():
             click.echo(error_msg)
     
 # functions below
-
 def greeting():
     """Greets the user and explains the purpose of Flavor Quest."""
     greet = click.style("Welcome to Flavor Quest!", fg="blue", bg="white", bold=True)
     click.echo(greet)
     click.echo("\n")
-    instructions = click.style("After answering just a few questions about your food intolerances, cuisine preferences, and more, we will show you a tasty recipe to try. Answer as many or as few questions as you'd like. If at any point you want to skip a question, enter 0, or if you’d like to see more details about the question, enter 1. Lastly, if you want to go back and change your response, enter 'Back'.\n**Tip**: If you want a random recipe, enter 0 for all prompts!", italic=True)
+    instructions = click.style("After answering just a few questions about your"
+        " food intolerances, cuisine preferences, and more, we will show you a "
+        "tasty recipe to try. Answer as many or as few questions as you'd like."
+        " If at any point you want to skip a question, enter 0, or if you’d "
+        "like to see more details about the question, enter 1. Lastly, if you "
+        "want to go back and change your response, enter 'Back'.\n**Tip**: If "
+        "you want a random recipe, enter 0 for all prompts!", italic=True)
     click.echo(instructions)
     click.echo("\n")
 
@@ -131,7 +120,11 @@ def get_recipe_type():
     options = click.style("Enter 0 to skip this step.", italic=True)
 
     while True:
-        click.echo("What type of recipe are you interested in? You may only enter 1 recipe type. \n examples - Pasta, Spicy, , Crunchy, Tuna Casserole, Lamb Stew\n **Tip: The more specific you are here, the less specific it is recommended to be in future questions**")
+        click.echo("What type of recipe are you interested in? You may only "
+            "enter 1 recipe type. \nex: Pasta, Spicy, Crunchy, "
+            "Tuna Casserole, Lamb Stew")
+        click.secho("**Tip: The more specific you are here, the less specific"
+            " it is recommended to be in future questions**", italic=True)
         recipe_type_prompt = click.style("Recipe Type", bold=True, fg="yellow")
         click.echo(options)
         recipe_type_input = click.prompt(recipe_type_prompt, type=str)
@@ -142,6 +135,11 @@ def get_recipe_type():
             return recipe_type_result
         
 def process_recipe_type_input(recipe_type_input):
+    """
+    Checks if user wants to skip recipe type or entered recipe types.
+    If user entered recipe type, checks if it contains 
+    nothing but Aa-Zz, spaces, and apostrophes.
+    """
 
      # user wants to skip entering recipe type
     if recipe_type_input.strip() == "0":
@@ -161,14 +159,21 @@ def process_recipe_type_input(recipe_type_input):
 
 
 def get_cuisine_types():
-    """Asks the user what cuisine types they are interested in. Can be skipped or user can see cuisine options."""
+    """
+    Asks the user what cuisine types they are interested in. 
+    Can be skipped, user can see cuisine options, user can go back to recipe type.
+    """
     
-    possible_cuisines = ["African", "Asian", "American", "British", "Cajun", "Caribbean", "Chinese", "Eastern European", "European", "French", "German",
-"Greek", "Indian", "Irish", "Italian", "Japanese", "Jewish", "Korean", "Latin American", "Mediterranean", "Mexican", "Middle Eastern", "Nordic", "Southern", "Spanish", "Thai", "Vietnamese"]
+    possible_cuisines = ["African", "Asian", "American", "British", "Cajun", 
+    "Caribbean", "Chinese", "Eastern European", "European", "French", "German",
+    "Greek", "Indian", "Irish", "Italian", "Japanese", "Jewish", "Korean", 
+    "Latin American", "Mediterranean", "Mexican", "Middle Eastern", "Nordic", 
+    "Southern", "Spanish", "Thai", "Vietnamese"]
 
     while True:
         click.echo("What cuisine types are you interested in? (separate by commas)")
-        options = click.style("Enter 0 to skip this step or 1 to see cuisine options.", italic=True)
+        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt",
+             italic=True)
         click.echo(options)
         cuisine_prompt = click.style("Cuisine Types", bold=True, fg="yellow")
         cuisine_input = click.prompt(cuisine_prompt, type=str)
@@ -180,7 +185,8 @@ def get_cuisine_types():
 
 def process_cuisine_input(cuisine_types, possible_cuisines):
     """
-    Checks if user wants to skip cuisine types, see cuisine options, go back, or entered cuisine types.
+    Checks if user wants to skip cuisine types, see cuisine options, 
+    go back, or entered cuisine types.
     If user entered cuisine types, checks if they are valid.
     """
 
@@ -214,13 +220,19 @@ def process_cuisine_input(cuisine_types, possible_cuisines):
     return cuisine_types
     
 def get_diet_types():
-    """Asks the user what diet types they are interested in. Can be skipped or user can see diet options."""
+    """
+    Asks the user what diet types they are interested in. 
+    Can be skipped or user can see diet options.
+    """
 
-    possible_diets = ["Gluten Free", "Ketogenic", "Vegetarian", "Lacto-Vegetarian", "Ovo-Vegetarian", "Vegan", "Pescetarian", "Paleo", "Primal", "Low FODMAP", "Whole30"]
+    possible_diets = ["Gluten Free", "Ketogenic", "Vegetarian", 
+        "Lacto-Vegetarian", "Ovo-Vegetarian", "Vegan", "Pescetarian", "Paleo", 
+        "Primal", "Low FODMAP", "Whole30"]
 
     while True:
         click.echo("List all diet types that your recipe must follow (separate by commas)")
-        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", italic=True)
+        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", 
+            italic=True)
         click.echo(options)
         diet_prompt = click.style("Diet Types", bold=True, fg="yellow")
         diet_input = click.prompt(diet_prompt, type=str)
@@ -232,7 +244,8 @@ def get_diet_types():
         
 def process_diet_input(diet_types, possible_diets):
     """
-    Checks if user wants to skip diet types, see diet options, go back to the previous prompt, or entered diet types.
+    Checks if user wants to skip diet types, see diet options, go back to the 
+    previous prompt, or entered diet types.
     If user entered diet types, checks if they are valid.
     """
 
@@ -266,13 +279,18 @@ def process_diet_input(diet_types, possible_diets):
     return diet_types
 
 def get_intolerances():
-    """Asks the user what intolerances their recipe must conform to. Can be skipped or user can see intolerance options."""
+    """
+    Asks the user what intolerances their recipe must conform to. 
+    Can be skipped or user can see intolerance options.
+    """
 
-    possible_intolerances = ["Dairy", "Egg", "Gluten", "Grain", "Peanut", "Seafood", "Sesame", "Shellfish", "Soy", "Sulfite", "Tree Nut", "Wheat"]
+    possible_intolerances = ["Dairy", "Egg", "Gluten", "Grain", "Peanut", 
+        "Seafood", "Sesame", "Shellfish", "Soy", "Sulfite", "Tree Nut", "Wheat"]
 
     while True:
         click.echo("List all food intolerances that your recipe must exclude (separate by commas)")
-        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", italic=True)
+        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", 
+            italic=True)
         click.echo(options)
         intolerance_prompt = click.style("Food Intolerances", bold=True, fg="yellow")
         intolerance_input = click.prompt(intolerance_prompt, type=str)
@@ -284,7 +302,8 @@ def get_intolerances():
         
 def process_intolerance_input(intolerance_input, possible_intolerances):
     """
-    Checks if user wants to skip food intolerance input, see intolerance options, go back to the previous prompt, or entered intolerances.
+    Checks if user wants to skip food intolerance input, see intolerance options, 
+    go back to the previous prompt, or entered intolerances.
     If user entered intolerances, checks if they are valid.
     """
 
@@ -349,7 +368,8 @@ def get_exclude_ingredients():
         
 def process_ingredient_input(ingredient_input):
     """
-    Checks if user wants to skip ingredient input, go back to the previous prompt, or entered ingredients.
+    Checks if user wants to skip ingredient input, go back to the 
+    previous prompt, or entered ingredients.
     If user entered ingredients, checks if they are valid.
     """
 
@@ -377,13 +397,17 @@ def process_ingredient_input(ingredient_input):
     return ingredient_input
 
 def get_meal_types():
-    """Asks the user what meal types they are interested in. Can be skipped or user can see possible meal types."""
+    """Asks the user what meal types they are interested in. 
+    Can be skipped or user can see possible meal types."""
 
-    possible_meal_types = ["Main Course", "Side Dish", "Dessert", "Appetizer", "Salad", "Bread", "Breakfast", "Soup", "Beverage", "Sauce", "Marinade", "Fingerfood", "Snack", "Drink"]
+    possible_meal_types = ["Main Course", "Side Dish", "Dessert", "Appetizer", 
+        "Salad", "Bread", "Breakfast", "Soup", "Beverage", "Sauce", "Marinade", 
+        "Fingerfood", "Snack", "Drink"]
 
     while True:
         click.echo("List all meal types that you are interested in (separate by commas)")
-        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", italic=True)
+        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", 
+            italic=True)
         click.echo(options)
         meal_type_prompt = click.style("Meal Types", bold=True, fg="yellow")
         meal_type_input = click.prompt(meal_type_prompt, type=str)
@@ -395,7 +419,8 @@ def get_meal_types():
         
 def process_meal_type_input(meal_type_input, possible_meal_types):
     """
-    Checks if user wants to skip meal type input, see meal type options, go back to the previous prompt, or entered meal types.
+    Checks if user wants to skip meal type input, see meal type options, 
+    go back to the previous prompt, or entered meal types.
     If user entered meal types, checks if they are valid.
     """
 
