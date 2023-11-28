@@ -9,9 +9,10 @@ click.clear()
 
 @click.command()
 def start():
+    """Main program"""
     # Greet User
     greeting()
-
+    
     # Gather recipe type
     recipe_type = get_recipe_type()
 
@@ -83,8 +84,7 @@ def start():
 # functions below
 def greeting():
     """Greets the user and explains the purpose of Flavor Quest."""
-    greet = click.style("Welcome to Flavor Quest!", fg="blue", bg="white", bold=True)
-    click.echo(greet)
+    click.secho("Welcome to Flavor Quest!", fg="blue", bg="white", bold=True)
     click.echo("\n")
     instructions = click.style("After answering just a few questions about your"
         " food intolerances, cuisine preferences, and more, we will show you a "
@@ -99,8 +99,6 @@ def greeting():
 def get_recipe_type():
     """Asks user what general recipe type they are interested in."""
 
-    options = click.style("Enter 0 to skip this step.", italic=True)
-
     while True:
         click.echo("What type of recipe are you interested in? You may only "
             "enter 1 recipe type. \nex: Pasta, Spicy, Crunchy, "
@@ -108,7 +106,7 @@ def get_recipe_type():
         click.secho("**Tip: The more specific you are here, the less specific"
             " it is recommended to be in future questions**", italic=True)
         recipe_type_prompt = click.style("Recipe Type", bold=True, fg="yellow")
-        click.echo(options)
+        click.secho("Enter 0 to skip this step.", italic=True)
         recipe_type_input = click.prompt(recipe_type_prompt, type=str)
         click.echo("\n")
         recipe_type_result = process_recipe_type_input(recipe_type_input)
@@ -154,9 +152,7 @@ def get_cuisine_types():
 
     while True:
         click.echo("What cuisine types are you interested in? (separate by commas)")
-        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt",
-             italic=True)
-        click.echo(options)
+        click.secho("0 = skip, 1 = show options, 'Back'= Return to previous prompt", italic=True)
         cuisine_prompt = click.style("Cuisine Types", bold=True, fg="yellow")
         cuisine_input = click.prompt(cuisine_prompt, type=str)
         click.echo("\n")
@@ -196,7 +192,8 @@ def process_cuisine_input(cuisine_types, possible_cuisines):
     # check if cuisine types are valid
     for cuisine in cuisine_types:
         if cuisine.title() not in possible_cuisines:
-            click.echo("You entred an invalid cuisine type or have a misspelling. Please try again.")
+            click.echo("You entred an invalid cuisine type or have a "
+                "misspelling. Please try again.")
             return None
 
     return cuisine_types
@@ -207,15 +204,13 @@ def get_diet_types():
     Can be skipped or user can see diet options.
     """
 
-    possible_diets = ["Gluten Free", "Ketogenic", "Vegetarian", 
+    possible_diets = ["Gluten Free", "Ketogenic", "Vegetarian",
         "Lacto-Vegetarian", "Ovo-Vegetarian", "Vegan", "Pescetarian", "Paleo", 
         "Primal", "Low FODMAP", "Whole30"]
 
     while True:
         click.echo("List all diet types that your recipe must follow (separate by commas)")
-        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", 
-            italic=True)
-        click.echo(options)
+        click.secho("0 = skip, 1 = show options, 'Back'= Return to previous prompt", italic=True)
         diet_prompt = click.style("Diet Types", bold=True, fg="yellow")
         diet_input = click.prompt(diet_prompt, type=str)
         click.echo("\n")
@@ -266,12 +261,12 @@ def get_intolerances():
     Can be skipped or user can see intolerance options.
     """
 
-    possible_intolerances = ["Dairy", "Egg", "Gluten", "Grain", "Peanut", 
+    possible_intolerances = ["Dairy", "Egg", "Gluten", "Grain", "Peanut",
         "Seafood", "Sesame", "Shellfish", "Soy", "Sulfite", "Tree Nut", "Wheat"]
 
     while True:
         click.echo("List all food intolerances that your recipe must exclude (separate by commas)")
-        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", 
+        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt",
             italic=True)
         click.echo(options)
         intolerance_prompt = click.style("Food Intolerances", bold=True, fg="yellow")
@@ -313,7 +308,8 @@ def process_intolerance_input(intolerance_input, possible_intolerances):
     # check if intolerances are valid
     for intolerance in intolerance_input:
         if intolerance.title() not in possible_intolerances:
-            click.echo("You entred an invalid food intolerance or have a misspelling. Please try again.")
+            click.echo("You entred an invalid food intolerance or have a "
+                "misspelling. Please try again.")
             return None
 
     return intolerance_input
@@ -323,8 +319,7 @@ def get_include_ingredients():
 
     while True:
         click.echo("List all ingredients that must be included in your recipe (separate by commas)")
-        options = click.style("0 = skip, 'Back'= Return to previous prompt", italic=True)
-        click.echo(options)
+        click.secho("0 = skip, 'Back'= Return to previous prompt", italic=True)
         include_ingredient_prompt = click.style("Ingredients to Include", bold=True, fg="yellow")
         include_ingredient_input = click.prompt(include_ingredient_prompt, type=str)
         click.echo("\n")
@@ -337,9 +332,9 @@ def get_exclude_ingredients():
     """Get ingredients that must be excluded in recipe"""
 
     while True:
-        click.echo("List all ingredients that must be excluded from your recipe (separate by commas)")
-        options = click.style("0 = skip, 'Back'= Return to previous prompt", italic=True)
-        click.echo(options)
+        click.echo("List all ingredients that must be excluded "
+            "from your recipe (separate by commas)")
+        click.secho("0 = skip, 'Back'= Return to previous prompt", italic=True)
         exclude_ingredient_prompt = click.style("Ingredients to Exclude", bold=True, fg="yellow")
         exclude_ingredient_input = click.prompt(exclude_ingredient_prompt, type=str)
         click.echo("\n")
@@ -360,7 +355,7 @@ def process_ingredient_input(ingredient_input):
         ingredient_result = []
         return ingredient_result
     
-    elif ingredient_input.lower() == "back":
+    elif ingredient_input.strip().lower() == "back":
         ingredient_result = False
         return ingredient_result
 
@@ -373,7 +368,8 @@ def process_ingredient_input(ingredient_input):
     for ingredient in ingredient_input:
         if re.match(pattern, ingredient):
             continue
-        click.echo("One or more of your ingredients contained numbers or special characters. Try again.")
+        click.echo("One or more of your ingredients contained numbers or "
+            "special characters. Try again.")
         return None
 
     return ingredient_input
@@ -388,9 +384,8 @@ def get_meal_types():
 
     while True:
         click.echo("List all meal types that you are interested in (separate by commas)")
-        options = click.style("0 = skip, 1 = show options, 'Back'= Return to previous prompt", 
+        click.secho("0 = skip, 1 = show options, 'Back'= Return to previous prompt",
             italic=True)
-        click.echo(options)
         meal_type_prompt = click.style("Meal Types", bold=True, fg="yellow")
         meal_type_input = click.prompt(meal_type_prompt, type=str)
         click.echo("\n")
@@ -419,7 +414,7 @@ def process_meal_type_input(meal_type_input, possible_meal_types):
         meal_type_result = None
         return meal_type_result
     
-    elif meal_type_input.lower() == "back":
+    elif meal_type_input.strip().lower() == "back":
         meal_type_result = False
         return meal_type_result
 
@@ -461,21 +456,17 @@ def make_request(flask_url, json_str):
     response = requests.get(flask_url, params={"json_str": json_str})
 
     if response.text == "Sorry no recipe was found, try again":
-        response = "Sorry, no recipe found using those search parameters!"
-        click.echo(response)
+        click.echo("Sorry, no recipe found using those search parameters!")
     else:
         try:
-            recipe = response.json()
-            path = build_recipe_pdf(recipe)
+            path = build_recipe_pdf(response.json())
             click.launch(path, locate=True)
             response = click.style("Your recipe has been created!", \
             fg="blue", bg="white", bold=True)
-            response_path = f"If it has not already opened, it can be found at:\n {path}"
             click.echo(response)
-            click.echo(response_path)
+            click.echo(f"If it has not already opened, it can be found at:\n {path}")
         except requests.exceptions.JSONDecodeError:
-            error_msg = "There was an error. Try again!"
-            click.echo(error_msg)
+            click.echo("There was an error. Try again!")
 
 def continue_running():
     """Checks if user wants to continue to a new recipe"""
