@@ -3,8 +3,6 @@ from io import BytesIO
 import requests
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image
 from reportlab.lib.styles import getSampleStyleSheet
-# from reportlab.lib import utils
-
 
 def build_recipe_pdf(recipe):
     """Parses recipe input and saves into list of flowables to be rendered in PDF using reportlab library"""
@@ -22,8 +20,8 @@ def build_recipe_pdf(recipe):
     pdf_path = os.path.abspath(file_name)   # where pdf will be saved to computer
     pdf = SimpleDocTemplate(file_name)
 
-    ingredients = []
-    steps = {}
+    ingredients = []   
+    steps = {}   # recipe steps, key=number, value=instruction
     for ingredient in recipe["extendedIngredients"]:
         ingredients.append(ingredient["original"])
 
@@ -31,18 +29,18 @@ def build_recipe_pdf(recipe):
         for j in i["steps"]:
             steps[j[str("number")]] = j["step"]
 
-    flowables = []
+    flowables = []   # what gets rendered on pdf
 
     sss = getSampleStyleSheet()
 
     flowables.append(Paragraph(recipe_name.title(), sss["Title"])) # recipe title
     flowables.append(Paragraph(f"Recipe from: {webpage}", sss["Heading5"]))   # source URL
     flowables.append(Paragraph(f"{servings} servings", sss["Heading6"]))   # servings
-    flowables.append(Paragraph(f"Time to make: {time}", sss["Heading6"]))   # time to make recipe
-    flowables.append(Image(image_data))
+    flowables.append(Paragraph(f"Time to make (minutes): {time}", sss["Heading6"]))   # time to make recipe
+    flowables.append(Image(image_data))   # image
     flowables.append(Paragraph("Ingredients", sss["Heading3"]))  # ingredient header
 
-    for ingredient in ingredients:   # ingredient list
+    for ingredient in ingredients:
         flowables.append(Paragraph(f"- {ingredient}", sss["Normal"]))
 
     flowables.append(Paragraph("Instructions", sss["Heading3"]))  # instruction header
