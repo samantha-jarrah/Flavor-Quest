@@ -77,24 +77,8 @@ def start():
 
     json_str = create_json_str(recipe_type, cuisine_types, diet_types, intolerances, include_ingredients, exclude_ingredients)
     flask_url = "http://localhost:8003/"
-    response = requests.get(flask_url, params={"json_str": json_str})
-
-    if response.text == "Sorry no recipe was found, try again":
-        response = "Sorry, no recipe found using those search parameters!"
-        click.echo(response)
-    else:
-        try:
-            recipe = response.json()
-            path = build_recipe_pdf(recipe)
-            click.launch(path, locate=True)
-            response = click.style("Your recipe has been created!", \
-            fg="blue", bg="white", bold=True)
-            response_path = f"If it has not already opened, it can be found at:\n {path}"
-            click.echo(response)
-            click.echo(response_path)
-        except requests.exceptions.JSONDecodeError:
-            error_msg = "There was an error. Try again!"
-            click.echo(error_msg)
+    make_request(flask_url, json_str)   # make API request using user parameters
+    continue_running()  # see if user wants to get another recipe
     
 # functions below
 def greeting():
@@ -471,6 +455,42 @@ def create_json_str(recipe_type, cuisine_types, diet_types, intolerances, includ
     json_data["fillIngredients"] = "true"
     json_data["addRecipeInformation"] = "true"
     return json.dumps(json_data)
+
+def make_request(flask_url, json_str):
+    """Make request to API using user parameters in json_str"""
+    response = requests.get(flask_url, params={"json_str": json_str})
+
+    if response.text == "Sorry no recipe was found, try again":
+        response = "Sorry, no recipe found using those search parameters!"
+        click.echo(response)
+    else:
+        try:
+            recipe = response.json()
+            path = build_recipe_pdf(recipe)
+            click.launch(path, locate=True)
+            response = click.style("Your recipe has been created!", \
+            fg="blue", bg="white", bold=True)
+            response_path = f"If it has not already opened, it can be found at:\n {path}"
+            click.echo(response)
+            click.echo(response_path)
+        except requests.exceptions.JSONDecodeError:
+            error_msg = "There was an error. Try again!"
+            click.echo(error_msg)
+
+def continue_running():
+    """Checks if user wants to continue to a new recipe"""
+
+    prompt = click.style("Would you like to get a new recipe? (yes/no)", fg="yellow", bold=True)
+    response = click.prompt(prompt, type=str)
+    response = response.strip().lower()
+
+    if response == "yes":
+        start()
+    elif response == "no":
+        return
+    else:
+        click.echo("That was not a valid response.")
+        continue_running()
 
 if __name__ == '__main__':
     start()
