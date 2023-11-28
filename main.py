@@ -121,7 +121,7 @@ def greeting():
     greet = click.style("Welcome to Flavor Quest!", fg="blue", bg="white", bold=True)
     click.echo(greet)
     click.echo("\n")
-    instructions = click.style("After answering just a few questions about your food intolerances, cuisine preferences, and more, we will show you a tasty recipe to try. Answer as many or as few questions as you'd like. If at any point you want to skip a question, enter 0, or if you’d like to see more details about the question, enter 1. Lastly, if you want to go back and change your response, enter 'Back'.", italic=True)
+    instructions = click.style("After answering just a few questions about your food intolerances, cuisine preferences, and more, we will show you a tasty recipe to try. Answer as many or as few questions as you'd like. If at any point you want to skip a question, enter 0, or if you’d like to see more details about the question, enter 1. Lastly, if you want to go back and change your response, enter 'Back'.\n**Tip**: If you want a random recipe, enter 0 for all prompts!", italic=True)
     click.echo(instructions)
     click.echo("\n")
 
@@ -131,7 +131,7 @@ def get_recipe_type():
     options = click.style("Enter 0 to skip this step.", italic=True)
 
     while True:
-        click.echo("What type of recipe are you interested in? You may only enter 1 recipe type. \n examples - Lemon Pasta, Spicy Lamb Stew, Chicken Potato Casserole\n **Tip: The more specific you are here, the less specific it is recommended to be in future questions**")
+        click.echo("What type of recipe are you interested in? You may only enter 1 recipe type. \n examples - Pasta, Spicy, , Crunchy, Tuna Casserole, Lamb Stew\n **Tip: The more specific you are here, the less specific it is recommended to be in future questions**")
         recipe_type_prompt = click.style("Recipe Type", bold=True, fg="yellow")
         click.echo(options)
         recipe_type_input = click.prompt(recipe_type_prompt, type=str)
@@ -430,4 +430,3 @@ def process_meal_type_input(meal_type_input, possible_meal_types):
 
 if __name__ == '__main__':
     start()
-    
