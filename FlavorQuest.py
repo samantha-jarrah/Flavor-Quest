@@ -4,15 +4,19 @@ import click
 import requests
 from pdf_generator import build_recipe_pdf
 
-# clears the terminal
-click.clear()
+
 
 @click.command()
-def start():
-    """Main program"""
+def recipe_search():
+    """
+    Returns a pdf of a recipe that satifies given parameters
+    """
+
+    # clears the terminal
+    click.clear()
     # Greet User
     greeting()
-    
+
     # Gather recipe type
     recipe_type = get_recipe_type()
 
@@ -79,7 +83,13 @@ def start():
     json_str = create_json_str(recipe_type, cuisine_types, diet_types, intolerances, include_ingredients, exclude_ingredients)
     flask_url = "http://localhost:8003/"
     make_request(flask_url, json_str)   # make API request using user parameters
-    continue_running()  # see if user wants to get another recipe
+    
+@click.command()
+def random_recipe():
+    """Returns a completely random recipe"""
+    json_str = json.dumps({"instructionsRequired": "true", "fillIngredients": "true", "addRecipeInformation": "true"})
+    flask_url = "http://localhost:8003/"
+    make_request(flask_url, json_str)
     
 # functions below
 def greeting():
@@ -452,7 +462,7 @@ def create_json_str(recipe_type, cuisine_types, diet_types, intolerances, includ
     return json.dumps(json_data)
 
 def make_request(flask_url, json_str):
-    """Make request to API using user parameters in json_str"""
+    """Make request to API using user parameters in json_str. Supports random recipe search"""
     response = requests.get(flask_url, params={"json_str": json_str})
 
     if response.text == "Sorry no recipe was found, try again":
@@ -468,20 +478,9 @@ def make_request(flask_url, json_str):
         except requests.exceptions.JSONDecodeError:
             click.echo("There was an error. Try again!")
 
-def continue_running():
-    """Checks if user wants to continue to a new recipe"""
-
-    prompt = click.style("Would you like to get a new recipe? (yes/no)", fg="yellow", bold=True)
-    response = click.prompt(prompt, type=str)
-    response = response.strip().lower()
-
-    if response == "yes":
-        start()
-    elif response == "no":
-        return
-    else:
-        click.echo("That was not a valid response.")
-        continue_running()
-
 if __name__ == '__main__':
-    start()
+    cli = click.Group()   # create click group to hold commands
+
+    cli.add_command(recipe_search)
+    cli.add_command(random_recipe)
+    cli()
