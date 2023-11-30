@@ -7,6 +7,7 @@ from flavor_quest_functions import (
     get_intolerances,
     get_include_ingredients,
     get_exclude_ingredients,
+    process_quick_recipe_input,
     get_meal_types,
     create_json_str,
     make_request,
@@ -16,7 +17,7 @@ from flavor_quest_functions import (
 @click.command()
 def recipe_search():
     """
-    Returns a pdf of a recipe that satifies given parameters
+    Returns a recipe pdf that satifies user parameters
     """
 
     # clears the terminal
@@ -93,14 +94,30 @@ def recipe_search():
     
 @click.command()
 def random_recipe():
-    """Returns a completely random recipe"""
+    """Returns a completely random recipe pdf"""
     json_str = json.dumps({"instructionsRequired": "true", "fillIngredients": "true", "addRecipeInformation": "true"})
     flask_url = "http://localhost:8003/"
     make_request(flask_url, json_str)
-    
+
+@click.command()
+def quick_search():
+    """Returns a recipe pdf based on a single query. ex. Lamb Stew, Spicy, Goulash, Tuna Casserole"""
+    click.echo("What type of recipe are you interested in? You may only "
+            "enter 1 recipe type. \nex: Pasta, Spicy, Crunchy, "
+            "Tuna Casserole, Lamb Stew")
+    recipe_type_prompt = click.style("Recipe Type", bold=True, fg="yellow")
+    recipe_type_input = click.prompt(recipe_type_prompt, type=str)
+    recipe_type_result = process_quick_recipe_input(recipe_type_input)
+    if recipe_type_result is None:
+        quick_search()
+    json_str = json.dumps({"query":f"{recipe_type_result}", "instructionsRequired": "true","fillIngredients": "true", "addRecipeInformation": "true"})
+    flask_url = "http://localhost:8003/"
+    make_request(flask_url, json_str)
+
 if __name__ == '__main__':
     cli = click.Group()   # create click group to hold commands
 
     cli.add_command(recipe_search)
     cli.add_command(random_recipe)
+    cli.add_command(quick_search)
     cli()

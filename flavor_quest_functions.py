@@ -59,7 +59,6 @@ def process_recipe_type_input(recipe_type_input):
     click.echo("Your recipe type contained numbers or special characters. Try again.")
     return None
 
-
 def get_cuisine_types():
     """
     Asks the user what cuisine types they are interested in. 
@@ -352,6 +351,19 @@ def process_meal_type_input(meal_type_input, possible_meal_types):
 
     return meal_type_input
 
+def process_quick_recipe_input(recipe_type_input):
+    """Check that recipe type input is valid."""
+    # process recipe type input, strip whitespace, make lowercase, and ensure it is a valid response
+    recipe_type_input = recipe_type_input.split(",")
+    recipe_type_input = recipe_type_input[0].strip().lower()
+
+    # check if recipe type are valid (cannot contain numbers or special symbols besides apostrophes)
+    pattern = "^[a-zA-Z' ]+$"
+    if re.match(pattern, recipe_type_input):
+        return recipe_type_input
+    click.echo("Your recipe type contained numbers or special characters. Try again.")
+    return None
+
 def create_json_str(recipe_type, cuisine_types, diet_types, intolerances, include_ingredients, exclude_ingredients):
     """Create json_str from recipe parameters"""
 
@@ -389,4 +401,3 @@ def make_request(flask_url, json_str):
             click.echo(f"If it has not already opened, it can be found at:\n {path}")
         except requests.exceptions.JSONDecodeError:
             click.echo("There was an error. Try again!")
-            
