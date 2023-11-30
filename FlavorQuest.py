@@ -100,16 +100,24 @@ def random_recipe():
     make_request(flask_url, json_str)
 
 @click.command()
-def quick_search():
+@click.argument("recipe_type", type=str, required=False)
+def quick_search(recipe_type):
     """Returns a recipe pdf based on a single query. ex. Lamb Stew, Spicy, Goulash, Tuna Casserole"""
-    click.echo("What type of recipe are you interested in? You may only "
-            "enter 1 recipe type. \nex: Pasta, Spicy, Crunchy, "
-            "Tuna Casserole, Lamb Stew")
-    recipe_type_prompt = click.style("Recipe Type", bold=True, fg="yellow")
-    recipe_type_input = click.prompt(recipe_type_prompt, type=str)
-    recipe_type_result = process_quick_recipe_input(recipe_type_input)
-    if recipe_type_result is None:
-        quick_search()
+    if not recipe_type:
+        click.echo("What type of recipe are you interested in? You may only "
+                "enter 1 recipe type. \nex: Pasta, Spicy, Crunchy, "
+                "Tuna Casserole, Lamb Stew")
+        recipe_type_prompt = click.style("Recipe Type", bold=True, fg="yellow")
+        recipe_type = click.prompt(recipe_type_prompt, type=str)
+    recipe_type_result = process_quick_recipe_input(recipe_type)
+    while recipe_type_result is None:
+        click.echo("\nWhat type of recipe are you interested in? You may only "
+                "enter 1 recipe type. \nex: Pasta, Spicy, Crunchy, "
+                "Tuna Casserole, Lamb Stew")
+        recipe_type_prompt = click.style("Recipe Type", bold=True, fg="yellow")
+        recipe_type = click.prompt(recipe_type_prompt, type=str)
+        click.echo("\n")
+        recipe_type_result = process_quick_recipe_input(recipe_type)
     json_str = json.dumps({"query":f"{recipe_type_result}", "instructionsRequired": "true","fillIngredients": "true", "addRecipeInformation": "true"})
     flask_url = "http://localhost:8003/"
     make_request(flask_url, json_str)

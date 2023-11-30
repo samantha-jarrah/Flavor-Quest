@@ -1,4 +1,5 @@
 import os
+import html
 from io import BytesIO
 import requests
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image
@@ -30,19 +31,21 @@ def build_recipe_pdf(recipe):
 
     sss = getSampleStyleSheet()
     # append to flowables: recipe title, sourceURL, servings, time to make, image, ingredients, instructions
-    flowables.append(Paragraph(recipe['title'].title(), sss["Title"]))
-    flowables.append(Paragraph(f"Recipe from: {recipe['sourceUrl']}", sss["Heading5"]))
-    flowables.append(Paragraph(f"{recipe['servings']} servings", sss["Heading6"]))
+    flowables.append(Paragraph(html.escape(recipe['title']).title(), sss["Title"]))
+    flowables.append(Paragraph(f"Recipe from: {html.escape(recipe['sourceUrl'])}", sss["Heading5"]))
+    flowables.append(Paragraph(f"{html.escape(str(recipe['servings']))} servings", sss["Heading6"]))
     flowables.append(Paragraph(f"Time to make (minutes): {recipe['readyInMinutes']}", sss["Heading6"]))
     flowables.append(Image(image_data))
     flowables.append(Paragraph("Ingredients", sss["Heading3"]))
 
     for ingredient in ingredients:
-        flowables.append(Paragraph(f"- {ingredient}", sss["Normal"]))
+        ingr = html.escape(ingredient)
+        flowables.append(Paragraph(f"- {ingr}", sss["Normal"]))
 
     flowables.append(Paragraph("Instructions", sss["Heading3"]))
 
     for num, direction in steps.items():
-        flowables.append(Paragraph(f"{num}) {direction}"))
+        direc = html.escape(direction)
+        flowables.append(Paragraph(f"{num}) {direc}"))
     pdf.build(flowables)
     return pdf_path
